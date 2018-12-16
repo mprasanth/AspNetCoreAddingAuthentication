@@ -20,9 +20,37 @@ namespace WishList.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            return View("Register");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult Register(RegisterViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                var applicationUser = new ApplicationUser { UserName = vm.Email, Email = vm.Email};
+                var result =   _userManager.CreateAsync(applicationUser, vm.Password).Result;
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("Password", error.Description);
+                    }
+
+                    return View("Register", vm);
+                }
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+               return RedirectToAction("Register", vm);
+            }
+        }
     }
 }
